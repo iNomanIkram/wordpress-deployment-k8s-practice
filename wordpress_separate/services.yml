@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress-database-service
+  labels:
+    app: wordpress
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: database
+    # tier: mysql
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wp-deployment-service
+spec:
+  ports:
+    - port: 80
+      nodePort: 32000
+  selector:
+    app: wordpress-app
+    # tier: mysql
+  type: NodePort

@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wp-deployment
+  labels:
+    app: wordpress-app
+spec:
+  selector:
+    matchLabels:
+      app: wordpress-app
+  # strategy:
+  #   type: Recreate
+  template:
+    metadata:
+      labels:
+        app: wordpress-app
+    spec:
+      containers:
+        - image: wordpress:5.6
+          name: wordpress
+          env:
+            - name: WORDPRESS_DB_HOST
+              value: wordpress-database-service
+            - name: WORDPRESS_DB_USER
+              value: root
+            - name: WORDPRESS_DB_PASSWORD
+              value: my-secret
+            # - name: WORDPRESS_DB_USER
+            #   value: root
+            - name: WORDPRESS_DB_NAME
+              value: wordpress
+            # - name: WORDPRESS_DB_USER
+            #   value: root
+            # valueFrom:
+            # secretKeyRef:
+            #   name: mysql-pass
+            #   key: password
+          ports:
+            - containerPort: 80
+              name: wordpress
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress-database
+  labels:
+    app: database
+spec:
+  selector:
+    matchLabels:
+      app: database
+      # tier: mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: database
+        # tier: mysql
+    spec:
+      containers:
+        - image: mysql:5.6
+          name: mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: my-secret
+            - name: MYSQL_DATABASE
+              value: wordpress
+              # valueFrom:
+              # secretKeyRef:
+              #   name: mysql-pass
+              #   key: password
+          ports:
+            - containerPort: 3306
+              name: mysql
